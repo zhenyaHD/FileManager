@@ -1,4 +1,7 @@
-package org.example;
+package org.example.servlets;
+
+import org.example.accounts.AccountService;
+import org.example.accounts.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,15 +16,29 @@ import java.nio.file.Paths;
 
 @WebServlet("/download")
 public class DownloadServlet extends HttpServlet {
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    private AccountService service = AccountService.getInstance();
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+        String sessionId = req.getSession().getId();
+        User user = service.getUserBySessionId(sessionId);
+        if (user == null) {
+            resp.sendRedirect("login");
+            return;
+        }
+        String defaultPath = System.getProperty("user.home");
+
+        defaultPath = defaultPath + System.getProperty("file.separator") + "filemanager" + System.getProperty("file.separator") + user.getLogin();
         String parameter = req.getParameter("path");
         String fileName = Paths.get(parameter).getFileName().toString();
 
         resp.setHeader("Content-disposition","attachment; filename=" + fileName);
 
+        if(!parameter.contains(defaultPath))
+        {
+            resp.sendRedirect("./");
+        }
         File myFile = new File(parameter);
 
         OutputStream out = resp.getOutputStream();
