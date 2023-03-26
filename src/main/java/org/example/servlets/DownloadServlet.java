@@ -28,7 +28,6 @@ public class DownloadServlet extends HttpServlet {
             return;
         }
         String defaultPath = System.getProperty("user.home");
-
         defaultPath = defaultPath + System.getProperty("file.separator") + "filemanager" + System.getProperty("file.separator") + user.getLogin();
         String parameter = req.getParameter("path");
         String fileName = Paths.get(parameter).getFileName().toString();
@@ -37,7 +36,7 @@ public class DownloadServlet extends HttpServlet {
 
         if(!parameter.contains(defaultPath))
         {
-            resp.sendRedirect("./");
+            resp.sendRedirect("files?path=");
         }
         File myFile = new File(parameter);
 

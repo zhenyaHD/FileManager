@@ -34,7 +34,6 @@ public class FilesServlet extends HttpServlet {
             return;
         }
         String parameter = req.getParameter("path");
-
         String defaultPath = System.getProperty("user.home");
 
         defaultPath = defaultPath + System.getProperty("file.separator") + "filemanager" + System.getProperty("file.separator") + user.getLogin();
@@ -45,17 +44,11 @@ public class FilesServlet extends HttpServlet {
         String openPath;
         if (parameter == null || parameter.isEmpty()) {
             openPath = defaultPath;
-        } else {
-            openPath = parameter;
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-
+        } else { openPath = parameter; }
         if (!openPath.contains(defaultPath))
             openPath = defaultPath;
 
         File file = new File(openPath);
-
         File[] files = file.listFiles();
         if (files == null) {
             resp.sendError(404, "File not found");
@@ -63,20 +56,21 @@ public class FilesServlet extends HttpServlet {
         }
 
         SimpleDateFormat fileFormat = new SimpleDateFormat("d/M/yy, K:mm:ss a");
-        List<FileInformation> fileDescriptionList = new ArrayList<>();
+        List<FileInformation> fileInformationList = new ArrayList<>();
 
         for (File tempFile : files) {
-            fileDescriptionList.add(new FileInformation(tempFile.getName(),
+            fileInformationList.add(new FileInformation(tempFile.getName(),
                     openPath + System.getProperty("file.separator") + tempFile.getName(),
                     String.valueOf(tempFile.length()),
                     fileFormat.format(new Date(tempFile.lastModified())),
                     tempFile.isDirectory()));
         }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
         req.setAttribute("date", LocalDateTime.now().format(formatter));
         req.setAttribute("back", file.getParent());
         req.setAttribute("name", openPath);
-        req.setAttribute("files", fileDescriptionList);
+        req.setAttribute("files", fileInformationList);
         req.getRequestDispatcher("WEB-INF/main.jsp").forward(req, resp);
     }
 }
